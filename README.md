@@ -27,10 +27,13 @@ A handful of components per role yields dozens of distinct meals.
 
 ## Features
 
-- **Prep plan** (the main view) — pick a period length (default 5 days) and set
-  how many **servings of each component** you'll batch-cook. Running totals show
-  total calories & protein vs. your period target (daily × days) and the per-day
-  average, so you can see at a glance whether your prep covers your goals.
+- **Prep plan** (the main view) — start from a **template** or tap **Auto-plan**
+  and the app generates a balanced, protein-forward plan that hits your calorie &
+  protein targets for the period (default 5 days); then tweak only what you want.
+  Your plan shows just the components you've added (progressive disclosure), with
+  a search-based **Add component** picker for the rest. Running totals show total
+  calories & protein vs. your period target (daily × days) and the per-day
+  average.
 - **Component library** — manage your bank of building blocks by category and
   flavor profile, each with per-serving nutrition, a servings-per-batch yield,
   and grocery ingredients.

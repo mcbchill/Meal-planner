@@ -71,6 +71,7 @@ interface Store {
   // prep plan
   setPrepServings: (componentId: string, servings: number) => void
   addServingsToPrep: (componentIds: string[], delta: number) => void
+  setPrep: (prep: Record<string, number>) => void
   clearPrep: () => void
   // data
   resetAll: () => void
@@ -162,6 +163,10 @@ export function StoreProvider({ children }: { children: ReactNode }) {
     })
   }, [])
 
+  const setPrep = useCallback((prep: Record<string, number>) => {
+    setState((s) => ({ ...s, prep }))
+  }, [])
+
   const clearPrep = useCallback(() => setState((s) => ({ ...s, prep: {} })), [])
 
   const resetAll = useCallback(() => setState(initialState()), [])
@@ -179,6 +184,7 @@ export function StoreProvider({ children }: { children: ReactNode }) {
       setPeriodDays,
       setPrepServings,
       addServingsToPrep,
+      setPrep,
       clearPrep,
       resetAll,
     }),
@@ -194,6 +200,7 @@ export function StoreProvider({ children }: { children: ReactNode }) {
       setPeriodDays,
       setPrepServings,
       addServingsToPrep,
+      setPrep,
       clearPrep,
       resetAll,
     ],

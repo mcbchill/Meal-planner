@@ -961,6 +961,164 @@ button.targets:hover {
   opacity: 0.5;
 }
 
+/* ---- Quick start (templates) ------------------------------------------- */
+.quickstart {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex-wrap: wrap;
+  margin-bottom: 16px;
+}
+
+.quickstart__label {
+  font-size: 13px;
+  font-weight: 700;
+  color: var(--muted);
+}
+
+.quickstart__chips {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.qchip {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  border: 1px solid var(--green);
+  background: var(--green-soft);
+  color: var(--green-dark);
+  border-radius: 999px;
+  padding: 7px 14px;
+  font-size: 13px;
+  font-weight: 700;
+}
+
+.qchip:hover {
+  background: #bbf7d0;
+}
+
+.qchip__emoji {
+  font-size: 15px;
+}
+
+/* ---- Template cards (empty state) -------------------------------------- */
+.empty-state__lead {
+  font-size: 16px;
+  font-weight: 800;
+  margin: 0;
+}
+
+.template-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+  gap: 12px;
+  width: 100%;
+  max-width: 560px;
+}
+
+.template-card {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 4px;
+  text-align: left;
+  background: var(--card);
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  padding: 14px;
+  box-shadow: var(--shadow);
+  transition: all 0.15s;
+}
+
+.template-card:hover {
+  border-color: var(--green);
+  transform: translateY(-2px);
+}
+
+.template-card__emoji {
+  font-size: 26px;
+}
+
+.template-card__name {
+  font-size: 15px;
+  font-weight: 800;
+}
+
+.template-card__desc {
+  font-size: 12px;
+  color: var(--muted);
+  line-height: 1.35;
+}
+
+/* ---- Plan groups (your plan) ------------------------------------------- */
+.plan-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin: 4px 0 12px;
+}
+
+.plan-header__title {
+  font-size: 17px;
+  font-weight: 800;
+}
+
+.plan-group {
+  margin-bottom: 18px;
+}
+
+.plan-group__title {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  font-size: 14px;
+  font-weight: 800;
+  color: var(--muted);
+  margin: 0 0 8px;
+}
+
+/* ---- Add-component modal ------------------------------------------------ */
+.add-group {
+  margin-bottom: 16px;
+}
+
+.add-group__title {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  font-size: 13px;
+  font-weight: 800;
+  color: var(--muted);
+  margin: 0 0 8px;
+}
+
+.add-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 8px 0;
+  border-bottom: 1px solid var(--line);
+}
+
+.add-row__info {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.add-row__name {
+  font-size: 14px;
+  font-weight: 700;
+}
+
+.add-row__macro {
+  font-size: 12px;
+  color: var(--muted);
+}
+
 /* ---- Prep plan ---------------------------------------------------------- */
 .prep-summary {
   background: var(--card);
