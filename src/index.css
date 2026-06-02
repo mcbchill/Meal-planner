@@ -31,6 +31,22 @@ body {
 button {
   font-family: inherit;
   cursor: pointer;
+  touch-action: manipulation; /* remove 300ms tap delay / double-tap zoom */
+}
+
+/* M2 — visible keyboard focus for every interactive element (WCAG 2.4.7).
+   Blue ring reads clearly on white, green, and orange surfaces alike. */
+:where(button, a, input, select, textarea, label, [tabindex], [role='tab']):focus-visible {
+  outline: 3px solid #1d4ed8;
+  outline-offset: 2px;
+  border-radius: 6px;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  * {
+    animation-duration: 0.001ms !important;
+    transition-duration: 0.001ms !important;
+  }
 }
 
 h1,
@@ -189,8 +205,12 @@ button.targets:hover {
 }
 
 .tab--active {
-  background: var(--green);
+  background: var(--green-dark); /* M3 — AA contrast with white label */
   color: #fff;
+}
+
+.tab {
+  min-height: 44px; /* M1 — comfortable touch target */
 }
 
 .tab__emoji {
@@ -279,12 +299,13 @@ button.targets:hover {
 }
 
 .btn--primary {
-  background: var(--green);
+  /* M3 — darker green for AA contrast with white text (~4.8:1) */
+  background: var(--green-dark);
   color: #fff;
 }
 
 .btn--primary:hover {
-  background: var(--green-dark);
+  background: #166534;
 }
 
 .btn--primary:disabled {
@@ -323,8 +344,13 @@ button.targets:hover {
 .icon-btn {
   border: none;
   background: transparent;
-  font-size: 15px;
-  padding: 4px 6px;
+  font-size: 16px;
+  /* M1 — 40px touch target while keeping the glyph compact */
+  min-width: 40px;
+  min-height: 40px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
   border-radius: 8px;
   line-height: 1;
 }
@@ -591,17 +617,17 @@ button.targets:hover {
   border: 1px solid var(--line);
   background: var(--card);
   border-radius: 8px;
-  width: 30px;
-  height: 30px;
-  font-size: 18px;
+  width: 40px; /* M1 — larger touch target */
+  height: 40px;
+  font-size: 20px;
   font-weight: 700;
   line-height: 1;
   color: var(--ink);
 }
 
 .stepper__btn:hover {
-  border-color: var(--green);
-  color: var(--green);
+  border-color: var(--green-dark);
+  color: var(--green-dark);
 }
 
 .stepper__val {
@@ -861,6 +887,12 @@ button.targets:hover {
 
 .progress__nums {
   color: var(--muted);
+}
+
+.progress__flag {
+  color: #dc2626;
+  font-weight: 800;
+  margin-right: 6px;
 }
 
 .progress__track {

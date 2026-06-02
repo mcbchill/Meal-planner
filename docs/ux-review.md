@@ -107,12 +107,12 @@ fiddly. *Fix:* add `inputMode`, `step`, and select-on-focus. *Effort: S*
 
 ---
 
-## Quick wins (high impact, ~Small effort) — do these first
-1. **M2** global `:focus-visible` ring
-2. **M1** 44px touch targets on steppers/icon buttons
-3. **M3** AA-contrast primary green
-4. **m7** non-color status cues
-5. **m10/m11** target validation + `inputMode` on number fields
+## Quick wins (high impact, ~Small effort) — ✅ IMPLEMENTED
+1. ✅ **M2** global `:focus-visible` ring (+ `prefers-reduced-motion`)
+2. ✅ **M1** 40px touch targets on steppers/icon buttons; 44px tabs; `touch-action`
+3. ✅ **M3** AA-contrast primary green (filled buttons + active tab → `--green-dark`)
+4. ✅ **m7** non-color status cue ("▲ over" label on progress bars)
+5. ✅ **m10/m11** target clamping + `inputMode`/select-on-focus on number fields
 
 ## Bigger bets (validate with users)
 - **M5** bottom navigation + collapsing summary on mobile

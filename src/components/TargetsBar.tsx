@@ -8,10 +8,13 @@ export function TargetsBar() {
   const [calories, setCalories] = useState(String(state.targets.calories))
   const [protein, setProtein] = useState(String(state.targets.protein))
 
+  // m10 — clamp to sane ranges so progress math never breaks on 0/garbage.
+  const clamp = (v: string, max: number) => Math.min(max, Math.max(0, Math.round(Number(v) || 0)))
+
   function save() {
     setTargets({
-      calories: Math.max(0, Number(calories) || 0),
-      protein: Math.max(0, Number(protein) || 0),
+      calories: clamp(calories, 10000),
+      protein: clamp(protein, 1000),
     })
     setEditing(false)
   }
@@ -29,8 +32,11 @@ export function TargetsBar() {
           <span>Daily calories</span>
           <input
             type="number"
+            inputMode="numeric"
             value={calories}
             min={0}
+            max={10000}
+            onFocus={(e) => e.currentTarget.select()}
             onChange={(e) => setCalories(e.target.value)}
           />
         </label>
@@ -38,8 +44,11 @@ export function TargetsBar() {
           <span>Protein (g)</span>
           <input
             type="number"
+            inputMode="numeric"
             value={protein}
             min={0}
+            max={1000}
+            onFocus={(e) => e.currentTarget.select()}
             onChange={(e) => setProtein(e.target.value)}
           />
         </label>

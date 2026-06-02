@@ -250,6 +250,8 @@ export function ComponentForm({
                 min={0}
                 value={calories}
                 placeholder="0"
+                inputMode="decimal"
+                onFocus={(e) => e.currentTarget.select()}
                 onChange={(e) => setCalories(e.target.value)}
               />
               <small>kcal</small>
@@ -261,6 +263,8 @@ export function ComponentForm({
                 min={0}
                 value={protein}
                 placeholder="0"
+                inputMode="decimal"
+                onFocus={(e) => e.currentTarget.select()}
                 onChange={(e) => setProtein(e.target.value)}
               />
               <small>protein g</small>
@@ -272,6 +276,8 @@ export function ComponentForm({
                 min={0}
                 value={carbs}
                 placeholder="0"
+                inputMode="decimal"
+                onFocus={(e) => e.currentTarget.select()}
                 onChange={(e) => setCarbs(e.target.value)}
               />
               <small>carbs g</small>
@@ -283,6 +289,8 @@ export function ComponentForm({
                 min={0}
                 value={fat}
                 placeholder="0"
+                inputMode="decimal"
+                onFocus={(e) => e.currentTarget.select()}
                 onChange={(e) => setFat(e.target.value)}
               />
               <small>fat g</small>
@@ -297,6 +305,8 @@ export function ComponentForm({
             type="number"
             min={1}
             value={servingsPerBatch}
+            inputMode="numeric"
+            onFocus={(e) => e.currentTarget.select()}
             onChange={(e) => setServingsPerBatch(e.target.value)}
           />
           <small className="field-hint">
@@ -315,7 +325,9 @@ export function ComponentForm({
                   type="number"
                   min={0}
                   step="any"
+                  inputMode="decimal"
                   value={ing.quantity}
+                  onFocus={(e) => e.currentTarget.select()}
                   onChange={(e) =>
                     updateIngredient(i, { quantity: Number(e.target.value) || 0 })
                   }

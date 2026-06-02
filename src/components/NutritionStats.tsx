@@ -50,6 +50,7 @@ export function TargetProgress({
       <div className="progress__head">
         <span className="progress__label">{label}</span>
         <span className="progress__nums">
+          {over && <span className="progress__flag">▲ over</span>}
           {Math.round(value)} / {target} {unit}
         </span>
       </div>
