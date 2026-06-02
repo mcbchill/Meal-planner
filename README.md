@@ -36,7 +36,11 @@ A handful of components per role yields dozens of distinct meals.
   average.
 - **Component library** — manage your bank of building blocks by category and
   flavor profile, each with per-serving nutrition, a servings-per-batch yield,
-  and grocery ingredients.
+  and grocery ingredients. **Auto-fill macros** by searching a food or scanning
+  a barcode (powered by [Open Food Facts](https://world.openfoodfacts.org) — no
+  API key, runs in your browser).
+- **Installable (PWA)** — "Add to Home Screen" on phone or desktop for an
+  app-like, offline-capable experience.
 - **Assembly ideas** — saved component combos for inspiration (bowl / wrap /
   tacos…), decoupled from your targets. Send any idea to the prep plan to add a
   serving of each of its components.

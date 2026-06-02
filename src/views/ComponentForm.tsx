@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import { useStore } from '../store'
 import { Modal } from '../components/Modal'
 import {
@@ -9,6 +9,7 @@ import {
   type FlavorProfile,
   type Ingredient,
 } from '../types'
+import { lookupBarcode, searchFoods, type FoodHit } from '../openfoodfacts'
 
 export function ComponentForm({
   initial,
@@ -36,6 +37,67 @@ export function ComponentForm({
   const [ingredients, setIngredients] = useState<Ingredient[]>(
     initial?.ingredients ?? [{ name: '', quantity: 1, unit: 'whole' }],
   )
+
+  // --- Open Food Facts autofill ---
+  const [lookup, setLookup] = useState('')
+  const [hits, setHits] = useState<FoodHit[]>([])
+  const [searching, setSearching] = useState(false)
+  const [offError, setOffError] = useState('')
+  const [filledFrom, setFilledFrom] = useState('')
+  const [scanning, setScanning] = useState(false)
+  const canScan = typeof window !== 'undefined' && 'BarcodeDetector' in window
+
+  function applyHit(hit: FoodHit) {
+    setCalories(String(hit.nutrition.calories))
+    setProtein(String(hit.nutrition.protein))
+    setCarbs(String(hit.nutrition.carbs))
+    setFat(String(hit.nutrition.fat))
+    if (!name.trim()) setName(hit.brand ? `${hit.name} (${hit.brand})` : hit.name)
+    setFilledFrom(
+      `Filled from “${hit.name}” · per ${hit.basis}${hit.servingSize ? ` (${hit.servingSize})` : ''}. Adjust to your portion.`,
+    )
+    setHits([])
+  }
+
+  async function runSearch() {
+    const q = lookup.trim()
+    if (!q) return
+    setSearching(true)
+    setOffError('')
+    setHits([])
+    try {
+      // A pure-digit query is treated as a barcode.
+      if (/^\d{6,}$/.test(q)) {
+        const hit = await lookupBarcode(q)
+        if (hit) applyHit(hit)
+        else setOffError('No product found for that barcode.')
+      } else {
+        const results = await searchFoods(q)
+        if (results.length === 0) setOffError('No matches found.')
+        setHits(results)
+      }
+    } catch {
+      setOffError('Lookup failed — check your connection and try again.')
+    } finally {
+      setSearching(false)
+    }
+  }
+
+  async function onScanned(code: string) {
+    setScanning(false)
+    setLookup(code)
+    setSearching(true)
+    setOffError('')
+    try {
+      const hit = await lookupBarcode(code)
+      if (hit) applyHit(hit)
+      else setOffError(`No product found for barcode ${code}.`)
+    } catch {
+      setOffError('Lookup failed — check your connection and try again.')
+    } finally {
+      setSearching(false)
+    }
+  }
 
   function toggleFlavor(f: FlavorProfile) {
     setFlavors((cur) => (cur.includes(f) ? cur.filter((x) => x !== f) : [...cur, f]))
@@ -122,6 +184,59 @@ export function ComponentForm({
                 {f}
               </button>
             ))}
+          </div>
+        </div>
+
+        <div className="form__field">
+          <span>🔎 Auto-fill nutrition</span>
+          <div className="autofill">
+            <div className="autofill__row">
+              <input
+                className="input autofill__input"
+                placeholder="Search a food or enter a barcode…"
+                value={lookup}
+                onChange={(e) => setLookup(e.target.value)}
+                onKeyDown={(e) => {
+                  if (e.key === 'Enter') {
+                    e.preventDefault()
+                    runSearch()
+                  }
+                }}
+              />
+              <button type="button" className="btn btn--soft btn--sm" disabled={searching} onClick={runSearch}>
+                {searching ? '…' : 'Look up'}
+              </button>
+              {canScan && (
+                <button
+                  type="button"
+                  className="btn btn--ghost btn--sm"
+                  onClick={() => setScanning(true)}
+                  title="Scan a barcode with your camera"
+                >
+                  📷
+                </button>
+              )}
+            </div>
+            {offError && <p className="autofill__error">{offError}</p>}
+            {hits.length > 0 && (
+              <ul className="autofill__hits">
+                {hits.map((h) => (
+                  <li key={h.id}>
+                    <button type="button" className="autofill__hit" onClick={() => applyHit(h)}>
+                      <span className="autofill__hit-name">
+                        {h.name}
+                        {h.brand ? <span className="autofill__hit-brand"> · {h.brand}</span> : null}
+                      </span>
+                      <span className="autofill__hit-macro">
+                        {h.nutrition.calories} kcal · {h.nutrition.protein}g P / {h.basis}
+                      </span>
+                    </button>
+                  </li>
+                ))}
+              </ul>
+            )}
+            {filledFrom && <p className="autofill__note">{filledFrom}</p>}
+            <p className="field-hint">Powered by Open Food Facts. Values are estimates — tweak per your portion.</p>
           </div>
         </div>
 
@@ -252,6 +367,78 @@ export function ComponentForm({
           </button>
         </div>
       </div>
+
+      {scanning && <BarcodeScanner onDetect={onScanned} onClose={() => setScanning(false)} />}
+    </Modal>
+  )
+}
+
+/** Camera barcode scanner using the native BarcodeDetector API (where supported). */
+function BarcodeScanner({
+  onDetect,
+  onClose,
+}: {
+  onDetect: (code: string) => void
+  onClose: () => void
+}) {
+  const videoRef = useRef<HTMLVideoElement>(null)
+  const [error, setError] = useState('')
+
+  useEffect(() => {
+    let stream: MediaStream | null = null
+    let raf = 0
+    let stopped = false
+    // BarcodeDetector isn't in TS's lib DOM types yet.
+    const Detector = (window as unknown as { BarcodeDetector: new (o?: unknown) => { detect: (s: CanvasImageSource) => Promise<{ rawValue: string }[]> } }).BarcodeDetector
+    const detector = new Detector({ formats: ['ean_13', 'ean_8', 'upc_a', 'upc_e', 'code_128'] })
+
+    async function start() {
+      try {
+        stream = await navigator.mediaDevices.getUserMedia({
+          video: { facingMode: 'environment' },
+        })
+        if (stopped) return
+        const video = videoRef.current
+        if (!video) return
+        video.srcObject = stream
+        await video.play()
+        const tick = async () => {
+          if (stopped || !videoRef.current) return
+          try {
+            const codes = await detector.detect(videoRef.current)
+            if (codes[0]?.rawValue) {
+              onDetect(codes[0].rawValue)
+              return
+            }
+          } catch {
+            // transient detect errors are fine — keep scanning
+          }
+          raf = requestAnimationFrame(tick)
+        }
+        raf = requestAnimationFrame(tick)
+      } catch {
+        setError('Could not access the camera. Enter the barcode digits instead.')
+      }
+    }
+    start()
+
+    return () => {
+      stopped = true
+      cancelAnimationFrame(raf)
+      stream?.getTracks().forEach((t) => t.stop())
+    }
+  }, [onDetect])
+
+  return (
+    <Modal title="Scan a barcode" onClose={onClose}>
+      {error ? (
+        <p className="autofill__error">{error}</p>
+      ) : (
+        <div className="scanner">
+          <video ref={videoRef} className="scanner__video" muted playsInline />
+          <p className="field-hint">Point your camera at a product barcode.</p>
+        </div>
+      )}
     </Modal>
   )
 }

@@ -961,6 +961,94 @@ button.targets:hover {
   opacity: 0.5;
 }
 
+/* ---- Open Food Facts autofill ------------------------------------------ */
+.autofill {
+  background: var(--bg);
+  border: 1px solid var(--line);
+  border-radius: 11px;
+  padding: 10px;
+  display: grid;
+  gap: 8px;
+}
+
+.autofill__row {
+  display: flex;
+  gap: 6px;
+}
+
+.autofill__input {
+  flex: 1;
+  min-width: 0;
+}
+
+.autofill__hits {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: grid;
+  gap: 4px;
+  max-height: 220px;
+  overflow-y: auto;
+}
+
+.autofill__hit {
+  width: 100%;
+  text-align: left;
+  border: 1px solid var(--line);
+  background: var(--card);
+  border-radius: 9px;
+  padding: 8px 10px;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.autofill__hit:hover {
+  border-color: var(--green);
+  background: var(--green-soft);
+}
+
+.autofill__hit-name {
+  font-size: 13.5px;
+  font-weight: 700;
+}
+
+.autofill__hit-brand {
+  font-weight: 500;
+  color: var(--muted);
+}
+
+.autofill__hit-macro {
+  font-size: 12px;
+  color: var(--muted);
+}
+
+.autofill__note {
+  margin: 0;
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--green-dark);
+}
+
+.autofill__error {
+  margin: 0;
+  font-size: 12.5px;
+  color: #dc2626;
+}
+
+.scanner {
+  display: grid;
+  gap: 8px;
+}
+
+.scanner__video {
+  width: 100%;
+  border-radius: 12px;
+  background: #000;
+  aspect-ratio: 4 / 3;
+  object-fit: cover;
+}
+
 /* ---- Quick start (templates) ------------------------------------------- */
 .quickstart {
   display: flex;
