@@ -961,6 +961,147 @@ button.targets:hover {
   opacity: 0.5;
 }
 
+/* ---- Week planner ------------------------------------------------------- */
+.week-avg {
+  background: var(--card);
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  padding: 14px 16px;
+  margin-bottom: 18px;
+  box-shadow: var(--shadow);
+}
+
+.week-avg__label {
+  font-size: 13px;
+  font-weight: 700;
+  color: var(--muted);
+}
+
+.week-avg__bars {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 14px;
+  margin-top: 10px;
+}
+
+.week-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+  gap: 12px;
+}
+
+.day-col {
+  background: var(--card);
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  padding: 12px;
+  box-shadow: var(--shadow);
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.day-col--filled {
+  border-color: var(--green);
+}
+
+.day-col__head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.day-col__name {
+  font-size: 15px;
+  font-weight: 800;
+}
+
+.day-col__meals {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: grid;
+  gap: 6px;
+  min-height: 32px;
+}
+
+.day-meal {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  background: var(--bg);
+  border-radius: 9px;
+  padding: 6px 8px;
+  font-size: 13px;
+}
+
+.day-meal__ff {
+  font-size: 14px;
+}
+
+.day-meal__name {
+  flex: 1;
+  font-weight: 600;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.day-meal__macro {
+  font-size: 11px;
+  font-weight: 700;
+  color: var(--muted);
+  white-space: nowrap;
+}
+
+.day-col__empty {
+  font-size: 12px;
+  color: var(--muted);
+  font-style: italic;
+  padding: 6px 2px;
+}
+
+.input--addmeal {
+  padding: 7px 9px;
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--green-dark);
+}
+
+.day-col__totals {
+  border-top: 1px solid var(--line);
+  padding-top: 10px;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: 4px 14px;
+}
+
+.day-total {
+  display: flex;
+  align-items: baseline;
+  gap: 4px;
+}
+
+.day-total__num {
+  font-size: 18px;
+  font-weight: 800;
+}
+
+.day-total__num--cal {
+  color: var(--cal);
+}
+
+.day-total__num--protein {
+  color: var(--protein);
+}
+
+.day-total__unit {
+  font-size: 11px;
+  color: var(--muted);
+  font-weight: 600;
+}
+
 /* ---- Footer ------------------------------------------------------------- */
 .app-footer {
   margin-top: 40px;

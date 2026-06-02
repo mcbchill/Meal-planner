@@ -104,11 +104,33 @@ export interface Targets {
   protein: number // grams/day
 }
 
+/** Days of the week used by the planner. */
+export const DAYS = [
+  'Monday',
+  'Tuesday',
+  'Wednesday',
+  'Thursday',
+  'Friday',
+  'Saturday',
+  'Sunday',
+] as const
+
+export type Day = (typeof DAYS)[number]
+
+/** A planned day is an ordered list of meal ids (one serving each, repeats ok). */
+export type WeekPlan = Record<Day, string[]>
+
+export function emptyWeekPlan(): WeekPlan {
+  return Object.fromEntries(DAYS.map((d) => [d, [] as string[]])) as unknown as WeekPlan
+}
+
 export interface AppState {
   components: Component[]
   meals: Meal[]
   targets: Targets
   /** mealId -> number of batches to buy groceries for. */
   cart: Record<string, number>
+  /** Day -> meal ids assigned to that day (one serving each). */
+  plan: WeekPlan
   seeded: boolean
 }

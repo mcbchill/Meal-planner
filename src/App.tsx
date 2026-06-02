@@ -3,12 +3,14 @@ import { useStore } from './store'
 import { ComponentLibrary } from './views/ComponentLibrary'
 import { MealBuilder } from './views/MealBuilder'
 import { GroceryList } from './views/GroceryList'
+import { WeekPlanner } from './views/WeekPlanner'
 import { TargetsBar } from './components/TargetsBar'
 
-type Tab = 'components' | 'meals' | 'grocery'
+type Tab = 'components' | 'meals' | 'plan' | 'grocery'
 
 const TABS: { id: Tab; label: string; emoji: string }[] = [
   { id: 'meals', label: 'Meals', emoji: '🍽️' },
+  { id: 'plan', label: 'Plan', emoji: '🗓️' },
   { id: 'components', label: 'Components', emoji: '🧩' },
   { id: 'grocery', label: 'Grocery', emoji: '🛒' },
 ]
@@ -50,6 +52,7 @@ export default function App() {
 
       <main className="content">
         {tab === 'meals' && <MealBuilder />}
+        {tab === 'plan' && <WeekPlanner />}
         {tab === 'components' && <ComponentLibrary />}
         {tab === 'grocery' && <GroceryList />}
       </main>

@@ -31,6 +31,9 @@ A handful of components per role yields dozens of distinct meals.
   (bowl / salad / wrap / tacos…), and watch calories + protein total up live
   against your daily targets. A 🎲 *Surprise me* button auto-picks on-profile
   components.
+- **Week planner** — assign meals to each day of the week and see that day's
+  total calories and protein vs. your targets, plus a daily average across the
+  week. Days flag when they go over calories or hit protein-dense.
 - **Calorie & protein targets** — set a daily goal; every meal shows what % of
   your targets it covers and flags **protein-dense** meals (≥ 8 g protein per
   100 kcal) — the sweet spot for staying full while losing weight.
@@ -60,5 +63,5 @@ src/
   nutrition.ts        macro math + grocery aggregation
   store.tsx           localStorage-backed state context
   components/         shared UI (targets bar, macros, progress, modal)
-  views/              ComponentLibrary, MealBuilder, MealForm, GroceryList
+  views/              ComponentLibrary, MealBuilder, MealForm, WeekPlanner, GroceryList
 ```

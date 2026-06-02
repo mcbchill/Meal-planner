@@ -7,7 +7,8 @@ import {
   useState,
   type ReactNode,
 } from 'react'
-import type { AppState, Component, Meal, Targets } from './types'
+import type { AppState, Component, Day, Meal, Targets } from './types'
+import { emptyWeekPlan } from './types'
 import { DEFAULT_TARGETS, SEED_COMPONENTS, SEED_MEALS } from './seed'
 
 const STORAGE_KEY = 'meal-planner.state.v1'
@@ -18,6 +19,7 @@ function initialState(): AppState {
     meals: SEED_MEALS,
     targets: DEFAULT_TARGETS,
     cart: {},
+    plan: emptyWeekPlan(),
     seeded: true,
   }
 }
@@ -33,6 +35,7 @@ function loadState(): AppState {
       meals: parsed.meals ?? SEED_MEALS,
       targets: parsed.targets ?? DEFAULT_TARGETS,
       cart: parsed.cart ?? {},
+      plan: { ...emptyWeekPlan(), ...(parsed.plan ?? {}) },
       seeded: parsed.seeded ?? true,
     }
   } catch {
@@ -63,6 +66,11 @@ interface Store {
   // cart
   setCartBatches: (mealId: string, batches: number) => void
   clearCart: () => void
+  // weekly plan
+  addMealToDay: (day: Day, mealId: string) => void
+  removeMealFromDay: (day: Day, index: number) => void
+  clearDay: (day: Day) => void
+  clearPlan: () => void
   // data
   resetAll: () => void
 }
@@ -119,7 +127,11 @@ export function StoreProvider({ children }: { children: ReactNode }) {
     setState((s) => {
       const cart = { ...s.cart }
       delete cart[id]
-      return { ...s, meals: s.meals.filter((x) => x.id !== id), cart }
+      // Also strip the deleted meal from every planned day.
+      const plan = Object.fromEntries(
+        Object.entries(s.plan).map(([day, ids]) => [day, ids.filter((mid) => mid !== id)]),
+      ) as typeof s.plan
+      return { ...s, meals: s.meals.filter((x) => x.id !== id), cart, plan }
     })
   }, [])
 
@@ -138,6 +150,23 @@ export function StoreProvider({ children }: { children: ReactNode }) {
 
   const clearCart = useCallback(() => setState((s) => ({ ...s, cart: {} })), [])
 
+  const addMealToDay = useCallback((day: Day, mealId: string) => {
+    setState((s) => ({ ...s, plan: { ...s.plan, [day]: [...s.plan[day], mealId] } }))
+  }, [])
+
+  const removeMealFromDay = useCallback((day: Day, index: number) => {
+    setState((s) => ({
+      ...s,
+      plan: { ...s.plan, [day]: s.plan[day].filter((_, i) => i !== index) },
+    }))
+  }, [])
+
+  const clearDay = useCallback((day: Day) => {
+    setState((s) => ({ ...s, plan: { ...s.plan, [day]: [] } }))
+  }, [])
+
+  const clearPlan = useCallback(() => setState((s) => ({ ...s, plan: emptyWeekPlan() })), [])
+
   const resetAll = useCallback(() => setState(initialState()), [])
 
   const value = useMemo<Store>(
@@ -152,6 +181,10 @@ export function StoreProvider({ children }: { children: ReactNode }) {
       setTargets,
       setCartBatches,
       clearCart,
+      addMealToDay,
+      removeMealFromDay,
+      clearDay,
+      clearPlan,
       resetAll,
     }),
     [
@@ -165,6 +198,10 @@ export function StoreProvider({ children }: { children: ReactNode }) {
       setTargets,
       setCartBatches,
       clearCart,
+      addMealToDay,
+      removeMealFromDay,
+      clearDay,
+      clearPlan,
       resetAll,
     ],
   )
