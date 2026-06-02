@@ -1,8 +1,8 @@
 import type { Component, Meal, Targets } from './types'
 
 // Starter library so the app is useful immediately. Nutrition is per single
-// serving of the component as it lands in a meal; ingredient quantities are for
-// one prepped batch (used to build the grocery list).
+// serving; `servingsPerBatch` is how many servings one prepped batch yields
+// (the ingredient list is for that one batch).
 
 export const SEED_COMPONENTS: Component[] = [
   // ----- Bases -------------------------------------------------------------
@@ -12,6 +12,7 @@ export const SEED_COMPONENTS: Component[] = [
     category: 'base',
     flavorProfiles: ['East Asian', 'Thai', 'Neutral'],
     nutrition: { calories: 205, protein: 4, carbs: 45, fat: 0 },
+    servingsPerBatch: 6,
     ingredients: [{ name: 'Jasmine rice', quantity: 2, unit: 'cup' }],
   },
   {
@@ -20,6 +21,7 @@ export const SEED_COMPONENTS: Component[] = [
     category: 'base',
     flavorProfiles: ['Mexican'],
     nutrition: { calories: 215, protein: 4, carbs: 46, fat: 2 },
+    servingsPerBatch: 6,
     ingredients: [
       { name: 'Long-grain rice', quantity: 2, unit: 'cup' },
       { name: 'Lime', quantity: 1, unit: 'whole' },
@@ -32,6 +34,7 @@ export const SEED_COMPONENTS: Component[] = [
     category: 'base',
     flavorProfiles: ['Mediterranean', 'Italian', 'Neutral'],
     nutrition: { calories: 200, protein: 7, carbs: 40, fat: 1 },
+    servingsPerBatch: 5,
     ingredients: [{ name: 'Farro', quantity: 1.5, unit: 'cup' }],
   },
   {
@@ -40,6 +43,7 @@ export const SEED_COMPONENTS: Component[] = [
     category: 'base',
     flavorProfiles: ['Mediterranean', 'Neutral'],
     nutrition: { calories: 185, protein: 8, carbs: 32, fat: 3 },
+    servingsPerBatch: 5,
     ingredients: [{ name: 'Quinoa', quantity: 1.5, unit: 'cup' }],
   },
   {
@@ -48,6 +52,7 @@ export const SEED_COMPONENTS: Component[] = [
     category: 'base',
     flavorProfiles: ['Neutral', 'Mediterranean', 'American'],
     nutrition: { calories: 15, protein: 1, carbs: 3, fat: 0 },
+    servingsPerBatch: 3,
     ingredients: [{ name: 'Mixed salad greens', quantity: 5, unit: 'oz' }],
   },
   {
@@ -56,6 +61,7 @@ export const SEED_COMPONENTS: Component[] = [
     category: 'base',
     flavorProfiles: ['American', 'Mediterranean'],
     nutrition: { calories: 160, protein: 3, carbs: 28, fat: 5 },
+    servingsPerBatch: 5,
     ingredients: [
       { name: 'Yukon gold potatoes', quantity: 2, unit: 'lb' },
       { name: 'Olive oil', quantity: 2, unit: 'tbsp' },
@@ -69,6 +75,7 @@ export const SEED_COMPONENTS: Component[] = [
     category: 'protein',
     flavorProfiles: ['Mexican', 'Mediterranean', 'American', 'East Asian'],
     nutrition: { calories: 220, protein: 28, carbs: 0, fat: 11 },
+    servingsPerBatch: 6,
     ingredients: [{ name: 'Boneless chicken thighs', quantity: 2, unit: 'lb' }],
   },
   {
@@ -77,6 +84,7 @@ export const SEED_COMPONENTS: Component[] = [
     category: 'protein',
     flavorProfiles: ['Mediterranean', 'Italian', 'American', 'Neutral'],
     nutrition: { calories: 165, protein: 31, carbs: 1, fat: 4 },
+    servingsPerBatch: 6,
     ingredients: [
       { name: 'Chicken breast', quantity: 2, unit: 'lb' },
       { name: 'Lemon', quantity: 1, unit: 'whole' },
@@ -88,6 +96,7 @@ export const SEED_COMPONENTS: Component[] = [
     category: 'protein',
     flavorProfiles: ['East Asian', 'Thai'],
     nutrition: { calories: 180, protein: 16, carbs: 8, fat: 10 },
+    servingsPerBatch: 5,
     ingredients: [
       { name: 'Extra-firm tofu', quantity: 2, unit: 'block' },
       { name: 'Cornstarch', quantity: 3, unit: 'tbsp' },
@@ -99,6 +108,7 @@ export const SEED_COMPONENTS: Component[] = [
     category: 'protein',
     flavorProfiles: ['Mexican', 'American'],
     nutrition: { calories: 215, protein: 23, carbs: 2, fat: 13 },
+    servingsPerBatch: 4,
     ingredients: [{ name: '93% lean ground beef', quantity: 1, unit: 'lb' }],
   },
   {
@@ -107,6 +117,7 @@ export const SEED_COMPONENTS: Component[] = [
     category: 'protein',
     flavorProfiles: ['Mediterranean', 'Middle Eastern', 'Indian'],
     nutrition: { calories: 150, protein: 8, carbs: 22, fat: 4 },
+    servingsPerBatch: 5,
     ingredients: [{ name: 'Chickpeas', quantity: 2, unit: 'can' }],
   },
   {
@@ -115,6 +126,7 @@ export const SEED_COMPONENTS: Component[] = [
     category: 'protein',
     flavorProfiles: ['East Asian', 'Thai', 'Mediterranean'],
     nutrition: { calories: 120, protein: 23, carbs: 1, fat: 2 },
+    servingsPerBatch: 4,
     ingredients: [
       { name: 'Shrimp, peeled', quantity: 1, unit: 'lb' },
       { name: 'Garlic', quantity: 4, unit: 'clove' },
@@ -128,6 +140,7 @@ export const SEED_COMPONENTS: Component[] = [
     category: 'vegetable',
     flavorProfiles: ['East Asian', 'Mediterranean', 'American', 'Neutral'],
     nutrition: { calories: 55, protein: 4, carbs: 8, fat: 2 },
+    servingsPerBatch: 5,
     ingredients: [{ name: 'Broccoli', quantity: 2, unit: 'head' }],
   },
   {
@@ -136,6 +149,7 @@ export const SEED_COMPONENTS: Component[] = [
     category: 'vegetable',
     flavorProfiles: ['Mexican', 'Thai', 'East Asian'],
     nutrition: { calories: 35, protein: 2, carbs: 7, fat: 0 },
+    servingsPerBatch: 6,
     ingredients: [
       { name: 'Green cabbage', quantity: 1, unit: 'head' },
       { name: 'Carrot', quantity: 2, unit: 'whole' },
@@ -147,6 +161,7 @@ export const SEED_COMPONENTS: Component[] = [
     category: 'vegetable',
     flavorProfiles: ['Mediterranean', 'Middle Eastern'],
     nutrition: { calories: 40, protein: 2, carbs: 8, fat: 0 },
+    servingsPerBatch: 4,
     ingredients: [
       { name: 'Cucumber', quantity: 2, unit: 'whole' },
       { name: 'Roma tomato', quantity: 3, unit: 'whole' },
@@ -158,6 +173,7 @@ export const SEED_COMPONENTS: Component[] = [
     category: 'vegetable',
     flavorProfiles: ['Mexican', 'Italian', 'American'],
     nutrition: { calories: 60, protein: 1, carbs: 9, fat: 3 },
+    servingsPerBatch: 4,
     ingredients: [
       { name: 'Bell pepper', quantity: 2, unit: 'whole' },
       { name: 'Yellow onion', quantity: 1, unit: 'whole' },
@@ -169,6 +185,7 @@ export const SEED_COMPONENTS: Component[] = [
     category: 'vegetable',
     flavorProfiles: ['American', 'Mediterranean', 'Indian'],
     nutrition: { calories: 115, protein: 2, carbs: 27, fat: 0 },
+    servingsPerBatch: 5,
     ingredients: [{ name: 'Sweet potato', quantity: 2, unit: 'lb' }],
   },
 
@@ -179,6 +196,7 @@ export const SEED_COMPONENTS: Component[] = [
     category: 'sauce',
     flavorProfiles: ['Mexican'],
     nutrition: { calories: 70, protein: 1, carbs: 3, fat: 6 },
+    servingsPerBatch: 6,
     ingredients: [
       { name: 'Greek yogurt', quantity: 1, unit: 'cup' },
       { name: 'Chipotle in adobo', quantity: 2, unit: 'tbsp' },
@@ -190,6 +208,7 @@ export const SEED_COMPONENTS: Component[] = [
     category: 'sauce',
     flavorProfiles: ['Thai', 'East Asian'],
     nutrition: { calories: 110, protein: 4, carbs: 6, fat: 8 },
+    servingsPerBatch: 6,
     ingredients: [
       { name: 'Peanut butter', quantity: 0.5, unit: 'cup' },
       { name: 'Soy sauce', quantity: 2, unit: 'tbsp' },
@@ -202,6 +221,7 @@ export const SEED_COMPONENTS: Component[] = [
     category: 'sauce',
     flavorProfiles: ['Mediterranean', 'Middle Eastern'],
     nutrition: { calories: 90, protein: 3, carbs: 4, fat: 7 },
+    servingsPerBatch: 6,
     ingredients: [
       { name: 'Tahini', quantity: 0.33, unit: 'cup' },
       { name: 'Lemon', quantity: 1, unit: 'whole' },
@@ -214,6 +234,7 @@ export const SEED_COMPONENTS: Component[] = [
     category: 'sauce',
     flavorProfiles: ['East Asian'],
     nutrition: { calories: 45, protein: 1, carbs: 9, fat: 0 },
+    servingsPerBatch: 6,
     ingredients: [
       { name: 'Soy sauce', quantity: 0.25, unit: 'cup' },
       { name: 'Fresh ginger', quantity: 1, unit: 'thumb' },
@@ -226,6 +247,7 @@ export const SEED_COMPONENTS: Component[] = [
     category: 'sauce',
     flavorProfiles: ['Mediterranean', 'Middle Eastern'],
     nutrition: { calories: 40, protein: 3, carbs: 3, fat: 2 },
+    servingsPerBatch: 6,
     ingredients: [
       { name: 'Greek yogurt', quantity: 1, unit: 'cup' },
       { name: 'Cucumber', quantity: 1, unit: 'whole' },
@@ -238,6 +260,7 @@ export const SEED_COMPONENTS: Component[] = [
     category: 'sauce',
     flavorProfiles: ['Mexican'],
     nutrition: { calories: 25, protein: 1, carbs: 5, fat: 0 },
+    servingsPerBatch: 8,
     ingredients: [
       { name: 'Tomatillo', quantity: 6, unit: 'whole' },
       { name: 'Jalapeño', quantity: 1, unit: 'whole' },
@@ -251,6 +274,7 @@ export const SEED_COMPONENTS: Component[] = [
     category: 'garnish',
     flavorProfiles: ['Mexican', 'Thai'],
     nutrition: { calories: 5, protein: 0, carbs: 1, fat: 0 },
+    servingsPerBatch: 6,
     ingredients: [
       { name: 'Cilantro', quantity: 1, unit: 'bunch' },
       { name: 'Lime', quantity: 1, unit: 'whole' },
@@ -262,6 +286,7 @@ export const SEED_COMPONENTS: Component[] = [
     category: 'garnish',
     flavorProfiles: ['Mediterranean', 'Middle Eastern'],
     nutrition: { calories: 75, protein: 4, carbs: 1, fat: 6 },
+    servingsPerBatch: 6,
     ingredients: [{ name: 'Feta', quantity: 4, unit: 'oz' }],
   },
   {
@@ -270,6 +295,7 @@ export const SEED_COMPONENTS: Component[] = [
     category: 'garnish',
     flavorProfiles: ['East Asian', 'Thai'],
     nutrition: { calories: 35, protein: 1, carbs: 1, fat: 3 },
+    servingsPerBatch: 10,
     ingredients: [{ name: 'Sesame seeds', quantity: 2, unit: 'tbsp' }],
   },
   {
@@ -278,6 +304,7 @@ export const SEED_COMPONENTS: Component[] = [
     category: 'garnish',
     flavorProfiles: ['Mexican', 'American'],
     nutrition: { calories: 80, protein: 1, carbs: 4, fat: 7 },
+    servingsPerBatch: 2,
     ingredients: [{ name: 'Avocado', quantity: 1, unit: 'whole' }],
   },
   {
@@ -286,6 +313,7 @@ export const SEED_COMPONENTS: Component[] = [
     category: 'garnish',
     flavorProfiles: ['Thai', 'East Asian'],
     nutrition: { calories: 85, protein: 4, carbs: 3, fat: 7 },
+    servingsPerBatch: 6,
     ingredients: [{ name: 'Roasted peanuts', quantity: 0.5, unit: 'cup' }],
   },
   {
@@ -294,6 +322,7 @@ export const SEED_COMPONENTS: Component[] = [
     category: 'garnish',
     flavorProfiles: ['Mediterranean', 'Middle Eastern', 'Italian'],
     nutrition: { calories: 5, protein: 0, carbs: 1, fat: 0 },
+    servingsPerBatch: 8,
     ingredients: [{ name: 'Fresh parsley', quantity: 1, unit: 'bunch' }],
   },
 ]
@@ -304,7 +333,6 @@ export const SEED_MEALS: Meal[] = [
     name: 'Chipotle Chicken Bowl',
     formFactor: 'bowl',
     flavorProfile: 'Mexican',
-    servings: 4,
     componentIds: [
       'base-cilantro-lime-rice',
       'protein-grilled-chicken',
@@ -319,7 +347,6 @@ export const SEED_MEALS: Meal[] = [
     name: 'Thai Peanut Tofu Bowl',
     formFactor: 'bowl',
     flavorProfile: 'Thai',
-    servings: 4,
     componentIds: [
       'base-jasmine-rice',
       'protein-crispy-tofu',
@@ -333,7 +360,6 @@ export const SEED_MEALS: Meal[] = [
     name: 'Mediterranean Chickpea Bowl',
     formFactor: 'bowl',
     flavorProfile: 'Mediterranean',
-    servings: 4,
     componentIds: [
       'base-farro',
       'protein-chickpeas',
@@ -345,3 +371,4 @@ export const SEED_MEALS: Meal[] = [
 ]
 
 export const DEFAULT_TARGETS: Targets = { calories: 1800, protein: 150 }
+export const DEFAULT_PERIOD_DAYS = 5

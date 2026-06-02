@@ -7,19 +7,18 @@ import {
   useState,
   type ReactNode,
 } from 'react'
-import type { AppState, Component, Day, Meal, Targets } from './types'
-import { emptyWeekPlan } from './types'
-import { DEFAULT_TARGETS, SEED_COMPONENTS, SEED_MEALS } from './seed'
+import type { AppState, Component, Meal, Targets } from './types'
+import { DEFAULT_PERIOD_DAYS, DEFAULT_TARGETS, SEED_COMPONENTS, SEED_MEALS } from './seed'
 
-const STORAGE_KEY = 'meal-planner.state.v1'
+const STORAGE_KEY = 'meal-planner.state.v2'
 
 function initialState(): AppState {
   return {
     components: SEED_COMPONENTS,
     meals: SEED_MEALS,
     targets: DEFAULT_TARGETS,
-    cart: {},
-    plan: emptyWeekPlan(),
+    periodDays: DEFAULT_PERIOD_DAYS,
+    prep: {},
     seeded: true,
   }
 }
@@ -29,13 +28,18 @@ function loadState(): AppState {
     const raw = localStorage.getItem(STORAGE_KEY)
     if (!raw) return initialState()
     const parsed = JSON.parse(raw) as Partial<AppState>
-    // Merge defensively so older/partial saved states still hydrate cleanly.
+    // Merge defensively so older/partial saved states still hydrate cleanly,
+    // and backfill servingsPerBatch on any component missing it.
+    const components = (parsed.components ?? SEED_COMPONENTS).map((c) => ({
+      ...c,
+      servingsPerBatch: c.servingsPerBatch && c.servingsPerBatch > 0 ? c.servingsPerBatch : 4,
+    }))
     return {
-      components: parsed.components ?? SEED_COMPONENTS,
+      components,
       meals: parsed.meals ?? SEED_MEALS,
       targets: parsed.targets ?? DEFAULT_TARGETS,
-      cart: parsed.cart ?? {},
-      plan: { ...emptyWeekPlan(), ...(parsed.plan ?? {}) },
+      periodDays: parsed.periodDays ?? DEFAULT_PERIOD_DAYS,
+      prep: parsed.prep ?? {},
       seeded: parsed.seeded ?? true,
     }
   } catch {
@@ -57,20 +61,17 @@ interface Store {
   addComponent: (c: Omit<Component, 'id'>) => Component
   updateComponent: (c: Component) => void
   deleteComponent: (id: string) => void
-  // meals
+  // meals (assembly ideas)
   addMeal: (m: Omit<Meal, 'id'>) => Meal
   updateMeal: (m: Meal) => void
   deleteMeal: (id: string) => void
-  // targets
+  // targets & period
   setTargets: (t: Targets) => void
-  // cart
-  setCartBatches: (mealId: string, batches: number) => void
-  clearCart: () => void
-  // weekly plan
-  addMealToDay: (day: Day, mealId: string) => void
-  removeMealFromDay: (day: Day, index: number) => void
-  clearDay: (day: Day) => void
-  clearPlan: () => void
+  setPeriodDays: (days: number) => void
+  // prep plan
+  setPrepServings: (componentId: string, servings: number) => void
+  addServingsToPrep: (componentIds: string[], delta: number) => void
+  clearPrep: () => void
   // data
   resetAll: () => void
 }
@@ -102,15 +103,20 @@ export function StoreProvider({ children }: { children: ReactNode }) {
   }, [])
 
   const deleteComponent = useCallback((id: string) => {
-    setState((s) => ({
-      ...s,
-      components: s.components.filter((x) => x.id !== id),
-      // Drop the component from any meals that referenced it.
-      meals: s.meals.map((m) => ({
-        ...m,
-        componentIds: m.componentIds.filter((cid) => cid !== id),
-      })),
-    }))
+    setState((s) => {
+      const prep = { ...s.prep }
+      delete prep[id]
+      return {
+        ...s,
+        components: s.components.filter((x) => x.id !== id),
+        // Drop the component from any meal ideas that referenced it.
+        meals: s.meals.map((m) => ({
+          ...m,
+          componentIds: m.componentIds.filter((cid) => cid !== id),
+        })),
+        prep,
+      }
+    })
   }, [])
 
   const addMeal = useCallback((m: Omit<Meal, 'id'>) => {
@@ -124,48 +130,39 @@ export function StoreProvider({ children }: { children: ReactNode }) {
   }, [])
 
   const deleteMeal = useCallback((id: string) => {
-    setState((s) => {
-      const cart = { ...s.cart }
-      delete cart[id]
-      // Also strip the deleted meal from every planned day.
-      const plan = Object.fromEntries(
-        Object.entries(s.plan).map(([day, ids]) => [day, ids.filter((mid) => mid !== id)]),
-      ) as typeof s.plan
-      return { ...s, meals: s.meals.filter((x) => x.id !== id), cart, plan }
-    })
+    setState((s) => ({ ...s, meals: s.meals.filter((x) => x.id !== id) }))
   }, [])
 
   const setTargets = useCallback((t: Targets) => {
     setState((s) => ({ ...s, targets: t }))
   }, [])
 
-  const setCartBatches = useCallback((mealId: string, batches: number) => {
+  const setPeriodDays = useCallback((days: number) => {
+    setState((s) => ({ ...s, periodDays: Math.max(1, Math.round(days) || 1) }))
+  }, [])
+
+  const setPrepServings = useCallback((componentId: string, servings: number) => {
     setState((s) => {
-      const cart = { ...s.cart }
-      if (batches <= 0) delete cart[mealId]
-      else cart[mealId] = batches
-      return { ...s, cart }
+      const prep = { ...s.prep }
+      if (servings <= 0) delete prep[componentId]
+      else prep[componentId] = servings
+      return { ...s, prep }
     })
   }, [])
 
-  const clearCart = useCallback(() => setState((s) => ({ ...s, cart: {} })), [])
-
-  const addMealToDay = useCallback((day: Day, mealId: string) => {
-    setState((s) => ({ ...s, plan: { ...s.plan, [day]: [...s.plan[day], mealId] } }))
+  const addServingsToPrep = useCallback((componentIds: string[], delta: number) => {
+    setState((s) => {
+      const prep = { ...s.prep }
+      for (const id of componentIds) {
+        const next = (prep[id] ?? 0) + delta
+        if (next <= 0) delete prep[id]
+        else prep[id] = next
+      }
+      return { ...s, prep }
+    })
   }, [])
 
-  const removeMealFromDay = useCallback((day: Day, index: number) => {
-    setState((s) => ({
-      ...s,
-      plan: { ...s.plan, [day]: s.plan[day].filter((_, i) => i !== index) },
-    }))
-  }, [])
-
-  const clearDay = useCallback((day: Day) => {
-    setState((s) => ({ ...s, plan: { ...s.plan, [day]: [] } }))
-  }, [])
-
-  const clearPlan = useCallback(() => setState((s) => ({ ...s, plan: emptyWeekPlan() })), [])
+  const clearPrep = useCallback(() => setState((s) => ({ ...s, prep: {} })), [])
 
   const resetAll = useCallback(() => setState(initialState()), [])
 
@@ -179,12 +176,10 @@ export function StoreProvider({ children }: { children: ReactNode }) {
       updateMeal,
       deleteMeal,
       setTargets,
-      setCartBatches,
-      clearCart,
-      addMealToDay,
-      removeMealFromDay,
-      clearDay,
-      clearPlan,
+      setPeriodDays,
+      setPrepServings,
+      addServingsToPrep,
+      clearPrep,
       resetAll,
     }),
     [
@@ -196,12 +191,10 @@ export function StoreProvider({ children }: { children: ReactNode }) {
       updateMeal,
       deleteMeal,
       setTargets,
-      setCartBatches,
-      clearCart,
-      addMealToDay,
-      removeMealFromDay,
-      clearDay,
-      clearPlan,
+      setPeriodDays,
+      setPrepServings,
+      addServingsToPrep,
+      clearPrep,
       resetAll,
     ],
   )

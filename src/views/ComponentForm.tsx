@@ -31,6 +31,7 @@ export function ComponentForm({
   const [protein, setProtein] = useState(String(initial?.nutrition.protein ?? ''))
   const [carbs, setCarbs] = useState(String(initial?.nutrition.carbs ?? ''))
   const [fat, setFat] = useState(String(initial?.nutrition.fat ?? ''))
+  const [servingsPerBatch, setServingsPerBatch] = useState(String(initial?.servingsPerBatch ?? 4))
   const [notes, setNotes] = useState(initial?.notes ?? '')
   const [ingredients, setIngredients] = useState<Ingredient[]>(
     initial?.ingredients ?? [{ name: '', quantity: 1, unit: 'whole' }],
@@ -67,6 +68,7 @@ export function ComponentForm({
         carbs: Number(carbs) || 0,
         fat: Number(fat) || 0,
       },
+      servingsPerBatch: Math.max(1, Number(servingsPerBatch) || 1),
       ingredients: cleanIngredients,
       notes: notes.trim() || undefined,
     }
@@ -172,6 +174,21 @@ export function ComponentForm({
             </label>
           </div>
         </div>
+
+        <label className="form__field">
+          <span>Servings per batch</span>
+          <input
+            className="input input--narrow"
+            type="number"
+            min={1}
+            value={servingsPerBatch}
+            onChange={(e) => setServingsPerBatch(e.target.value)}
+          />
+          <small className="field-hint">
+            How many servings one batch of the ingredients below makes — used to
+            scale the grocery list from your prep plan.
+          </small>
+        </label>
 
         <div className="form__field">
           <span>Grocery ingredients (per batch)</span>

@@ -109,6 +109,7 @@ export function ComponentLibrary() {
                       ))}
                     </div>
                     <NutritionStats nutrition={c.nutrition} showDensity={c.category === 'protein'} />
+                    <p className="card__yield">Makes {c.servingsPerBatch} servings / batch</p>
                     {c.notes && <p className="card__notes">{c.notes}</p>}
                   </article>
                 ))}

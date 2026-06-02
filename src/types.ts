@@ -2,14 +2,13 @@
 // Domain model for the meal planner.
 //
 // The system is component-based (inspired by Ethan Chlebowski's mix-and-match
-// meal prep): you keep a library of prepped *components* grouped by role, then
-// assemble *meals* by picking one or more components per role. Flavor profile
-// (driven mostly by the sauce + aromatics) is what makes the same components
-// feel like a different meal.
+// meal prep). The core workflow is PREP-FIRST: for a period (e.g. 5 days) you
+// decide how many *servings* of each component you'll batch-cook. If the total
+// calories and protein across everything you prep covers your period target,
+// you'll hit your goals no matter how you assemble meals day to day.
 //
-// Every component carries per-serving nutrition so meals can total calories and
-// protein automatically — the numbers that matter for hitting a weight-loss
-// target.
+// Every component carries per-serving nutrition (so totals roll up) and a
+// servings-per-batch yield (so the grocery list scales from planned servings).
 // ---------------------------------------------------------------------------
 
 export type Category = 'base' | 'protein' | 'vegetable' | 'sauce' | 'garnish'
@@ -81,8 +80,10 @@ export interface Component {
   name: string
   category: Category
   flavorProfiles: FlavorProfile[]
-  /** Nutrition for ONE serving of this component as used in a meal. */
+  /** Nutrition for ONE serving of this component. */
   nutrition: Nutrition
+  /** How many servings one prepped batch yields (used to scale groceries). */
+  servingsPerBatch: number
   /** Grocery items needed to prep one batch of this component. */
   ingredients: Ingredient[]
   notes?: string
@@ -94,8 +95,6 @@ export interface Meal {
   formFactor: FormFactor
   flavorProfile: FlavorProfile
   componentIds: string[]
-  /** How many servings one batch of this meal makes (scales the grocery list). */
-  servings: number
   notes?: string
 }
 
@@ -104,33 +103,14 @@ export interface Targets {
   protein: number // grams/day
 }
 
-/** Days of the week used by the planner. */
-export const DAYS = [
-  'Monday',
-  'Tuesday',
-  'Wednesday',
-  'Thursday',
-  'Friday',
-  'Saturday',
-  'Sunday',
-] as const
-
-export type Day = (typeof DAYS)[number]
-
-/** A planned day is an ordered list of meal ids (one serving each, repeats ok). */
-export type WeekPlan = Record<Day, string[]>
-
-export function emptyWeekPlan(): WeekPlan {
-  return Object.fromEntries(DAYS.map((d) => [d, [] as string[]])) as unknown as WeekPlan
-}
-
 export interface AppState {
   components: Component[]
+  /** Saved assembly ideas (secondary — they don't drive targets or groceries). */
   meals: Meal[]
   targets: Targets
-  /** mealId -> number of batches to buy groceries for. */
-  cart: Record<string, number>
-  /** Day -> meal ids assigned to that day (one serving each). */
-  plan: WeekPlan
+  /** Length of the prep period in days. */
+  periodDays: number
+  /** componentId -> servings to batch-cook this period. */
+  prep: Record<string, number>
   seeded: boolean
 }

@@ -1,7 +1,7 @@
 import { useState } from 'react'
 import { useStore } from '../store'
 import { CATEGORY_BY_ID, FORM_FACTORS, type Meal } from '../types'
-import { mealNutrition, proteinDensity, roundNutrition } from '../nutrition'
+import { mealNutrition, proteinDensity } from '../nutrition'
 import { NutritionStats } from '../components/NutritionStats'
 import { MealForm } from './MealForm'
 
@@ -10,46 +10,45 @@ function formFactorMeta(id: Meal['formFactor']) {
 }
 
 export function MealBuilder() {
-  const { state, deleteMeal, setCartBatches } = useStore()
+  const { state, deleteMeal, addServingsToPrep } = useStore()
   const [building, setBuilding] = useState(false)
   const [editing, setEditing] = useState<Meal | null>(null)
+  const [added, setAdded] = useState<string | null>(null)
+
+  function addToPrep(meal: Meal) {
+    addServingsToPrep(meal.componentIds, 1)
+    setAdded(meal.id)
+    window.setTimeout(() => setAdded((cur) => (cur === meal.id ? null : cur)), 1600)
+  }
 
   return (
     <section>
       <div className="view-header">
         <div>
-          <h2 className="view-title">Meals</h2>
+          <h2 className="view-title">Assembly ideas</h2>
           <p className="view-sub">
-            Assemble a base + protein + veg + sauce + garnish. Calories and
-            protein total up automatically.
+            Saved component combos for inspiration. Send one to your prep plan to
+            add a serving of each of its components.
           </p>
         </div>
         <button className="btn btn--primary" onClick={() => setBuilding(true)}>
-          + Build a meal
+          + New idea
         </button>
       </div>
 
       {state.meals.length === 0 ? (
         <div className="empty-state">
-          <p>No meals yet.</p>
+          <p>No assembly ideas yet.</p>
           <button className="btn btn--primary" onClick={() => setBuilding(true)}>
-            Build your first meal
+            Create your first idea
           </button>
         </div>
       ) : (
         <div className="card-grid card-grid--meals">
           {state.meals.map((meal) => {
             const n = mealNutrition(meal.componentIds, state.components)
-            const rounded = roundNutrition(n)
             const density = proteinDensity(n)
             const ff = formFactorMeta(meal.formFactor)
-            const inCart = state.cart[meal.id] ?? 0
-            const calPct = state.targets.calories
-              ? Math.round((rounded.calories / state.targets.calories) * 100)
-              : 0
-            const protPct = state.targets.protein
-              ? Math.round((rounded.protein / state.targets.protein) * 100)
-              : 0
             return (
               <article key={meal.id} className="meal-card">
                 <div className="meal-card__head">
@@ -60,7 +59,6 @@ export function MealBuilder() {
                     <div className="tag-row">
                       <span className="tag tag--flavor">{meal.flavorProfile}</span>
                       <span className="tag">{ff.label}</span>
-                      <span className="tag">{meal.servings} servings</span>
                     </div>
                   </div>
                   <div className="card__actions">
@@ -96,42 +94,22 @@ export function MealBuilder() {
 
                 <div className="meal-card__nutrition">
                   <NutritionStats nutrition={n} showDensity />
-                  <div className="meal-card__pcts">
-                    <span className="pct pct--cal">{calPct}% of cal target</span>
-                    <span className="pct pct--protein">{protPct}% of protein target</span>
-                    {density >= 8 && <span className="pct pct--good">🔥 protein-dense</span>}
-                  </div>
+                  {density >= 8 && (
+                    <div className="meal-card__pcts">
+                      <span className="pct pct--good">🔥 protein-dense</span>
+                    </div>
+                  )}
                 </div>
 
                 {meal.notes && <p className="card__notes">{meal.notes}</p>}
 
                 <div className="meal-card__cart">
-                  {inCart > 0 ? (
-                    <div className="stepper">
-                      <button
-                        className="stepper__btn"
-                        onClick={() => setCartBatches(meal.id, inCart - 1)}
-                      >
-                        −
-                      </button>
-                      <span className="stepper__val">
-                        {inCart} batch{inCart > 1 ? 'es' : ''} in list
-                      </span>
-                      <button
-                        className="stepper__btn"
-                        onClick={() => setCartBatches(meal.id, inCart + 1)}
-                      >
-                        +
-                      </button>
-                    </div>
-                  ) : (
-                    <button
-                      className="btn btn--soft btn--sm btn--block"
-                      onClick={() => setCartBatches(meal.id, 1)}
-                    >
-                      🛒 Add to grocery list
-                    </button>
-                  )}
+                  <button
+                    className={`btn btn--soft btn--sm btn--block ${added === meal.id ? 'btn--ok' : ''}`}
+                    onClick={() => addToPrep(meal)}
+                  >
+                    {added === meal.id ? '✓ Added to prep plan' : '➕ Add components to prep plan'}
+                  </button>
                 </div>
               </article>
             )

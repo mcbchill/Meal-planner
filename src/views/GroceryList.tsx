@@ -1,25 +1,28 @@
 import { useMemo, useState } from 'react'
 import { useStore } from '../store'
-import { buildGroceryList, prettyQuantity } from '../nutrition'
+import { batchesNeeded, buildGroceryFromPrep, prettyQuantity } from '../nutrition'
+import { CATEGORY_BY_ID } from '../types'
 
 export function GroceryList() {
-  const { state, setCartBatches, clearCart } = useStore()
+  const { state } = useStore()
+  const { prep, components } = state
   const [checked, setChecked] = useState<Set<string>>(new Set())
 
-  const cartMeals = useMemo(
+  const componentById = useMemo(() => new Map(components.map((c) => [c.id, c])), [components])
+
+  // What to cook: each planned component with its servings and batch count.
+  const prepItems = useMemo(
     () =>
-      Object.entries(state.cart)
-        .map(([id, batches]) => ({ meal: state.meals.find((m) => m.id === id), batches }))
-        .filter((x): x is { meal: NonNullable<typeof x.meal>; batches: number } => !!x.meal),
-    [state.cart, state.meals],
+      Object.entries(prep)
+        .map(([id, servings]) => ({ component: componentById.get(id), servings }))
+        .filter((x): x is { component: NonNullable<typeof x.component>; servings: number } =>
+          !!x.component && x.servings > 0,
+        )
+        .sort((a, b) => a.component.name.localeCompare(b.component.name)),
+    [prep, componentById],
   )
 
-  const list = useMemo(
-    () => buildGroceryList(state.cart, state.meals, state.components),
-    [state.cart, state.meals, state.components],
-  )
-
-  const totalServings = cartMeals.reduce((sum, { meal, batches }) => sum + meal.servings * batches, 0)
+  const list = useMemo(() => buildGroceryFromPrep(prep, components), [prep, components])
 
   function toggle(key: string) {
     setChecked((cur) => {
@@ -37,7 +40,7 @@ export function GroceryList() {
     navigator.clipboard?.writeText(text)
   }
 
-  if (cartMeals.length === 0) {
+  if (prepItems.length === 0) {
     return (
       <section>
         <div className="view-header">
@@ -46,8 +49,8 @@ export function GroceryList() {
         <div className="empty-state">
           <p>Your grocery list is empty.</p>
           <p className="view-sub">
-            Add meals to your list from the <strong>Meals</strong> tab and their
-            ingredients will roll up here automatically.
+            Set servings in the <strong>Prep plan</strong> tab and the ingredients
+            you need will roll up here automatically.
           </p>
         </div>
       </section>
@@ -59,48 +62,36 @@ export function GroceryList() {
       <div className="view-header">
         <div>
           <h2 className="view-title">Grocery list</h2>
-          <p className="view-sub">
-            {cartMeals.length} meal{cartMeals.length > 1 ? 's' : ''} · {totalServings} servings
-            total
-          </p>
+          <p className="view-sub">Everything you need to prep this period.</p>
         </div>
-        <div className="view-header__actions">
-          <button className="btn btn--ghost btn--sm" onClick={copyList}>
-            📋 Copy
-          </button>
-          <button
-            className="btn btn--ghost btn--sm"
-            onClick={() => {
-              if (confirm('Clear the grocery list?')) {
-                clearCart()
-                setChecked(new Set())
-              }
-            }}
-          >
-            Clear
-          </button>
-        </div>
+        <button className="btn btn--ghost btn--sm" onClick={copyList}>
+          📋 Copy
+        </button>
       </div>
 
-      <div className="grocery-meals">
-        {cartMeals.map(({ meal, batches }) => (
-          <div key={meal.id} className="grocery-meal">
-            <span className="grocery-meal__name">{meal.name}</span>
-            <div className="stepper stepper--sm">
-              <button className="stepper__btn" onClick={() => setCartBatches(meal.id, batches - 1)}>
-                −
-              </button>
-              <span className="stepper__val">
-                ×{batches} ({meal.servings * batches} srv)
-              </span>
-              <button className="stepper__btn" onClick={() => setCartBatches(meal.id, batches + 1)}>
-                +
-              </button>
-            </div>
-          </div>
-        ))}
+      {/* Prep checklist: what to cook, and how many batches */}
+      <div className="prep-checklist">
+        <h3 className="prep-checklist__title">🍳 To cook</h3>
+        <ul>
+          {prepItems.map(({ component, servings }) => {
+            const batches = batchesNeeded(component, servings)
+            return (
+              <li key={component.id}>
+                <span className="prep-checklist__cat">
+                  {CATEGORY_BY_ID[component.category].emoji}
+                </span>
+                <span className="prep-checklist__name">{component.name}</span>
+                <span className="prep-checklist__qty">
+                  {batches} batch{batches > 1 ? 'es' : ''} → {servings} serving
+                  {servings > 1 ? 's' : ''}
+                </span>
+              </li>
+            )
+          })}
+        </ul>
       </div>
 
+      <h3 className="grocery-heading">🛒 Shopping list</h3>
       <ul className="grocery-list">
         {list.map((ing) => {
           const key = `${ing.name}|${ing.unit}`

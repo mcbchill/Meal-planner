@@ -1,4 +1,4 @@
-import type { Component, Ingredient, Meal, Nutrition } from './types'
+import type { Component, Ingredient, Nutrition } from './types'
 import { EMPTY_NUTRITION } from './types'
 
 export function addNutrition(a: Nutrition, b: Nutrition): Nutrition {
@@ -28,13 +28,34 @@ export function roundNutrition(n: Nutrition): Nutrition {
   }
 }
 
-/** Per-serving nutrition for a meal: sum of its selected components. */
+/** Per-serving nutrition for an assembled meal: sum of its components. */
 export function mealNutrition(componentIds: string[], components: Component[]): Nutrition {
   const byId = new Map(components.map((c) => [c.id, c]))
   return componentIds.reduce<Nutrition>((total, id) => {
     const c = byId.get(id)
     return c ? addNutrition(total, c.nutrition) : total
   }, EMPTY_NUTRITION)
+}
+
+/**
+ * Total nutrition across a whole prep plan: for each component, planned servings
+ * × per-serving nutrition, summed.
+ */
+export function prepNutrition(
+  prep: Record<string, number>,
+  components: Component[],
+): Nutrition {
+  const byId = new Map(components.map((c) => [c.id, c]))
+  return Object.entries(prep).reduce<Nutrition>((total, [id, servings]) => {
+    const c = byId.get(id)
+    if (!c || servings <= 0) return total
+    return addNutrition(total, scaleNutrition(c.nutrition, servings))
+  }, EMPTY_NUTRITION)
+}
+
+/** Total number of planned servings across the whole prep plan. */
+export function totalPlannedServings(prep: Record<string, number>): number {
+  return Object.values(prep).reduce((sum, s) => sum + (s > 0 ? s : 0), 0)
 }
 
 /**
@@ -46,35 +67,36 @@ export function proteinDensity(n: Nutrition): number {
   return (n.protein / n.calories) * 100
 }
 
+/** Batches needed to cover the planned servings of a component. */
+export function batchesNeeded(component: Component, servings: number): number {
+  const per = component.servingsPerBatch > 0 ? component.servingsPerBatch : 1
+  return Math.ceil(servings / per)
+}
+
 /**
- * Aggregate a grocery list from a cart of meals. Each cart entry is a number of
- * batches; one batch yields `meal.servings` servings. Ingredient quantities are
- * summed across meals, keyed by name + unit.
+ * Build a grocery list from a prep plan. For each component with planned
+ * servings, compute the number of batches and sum its ingredient quantities,
+ * de-duplicated by name + unit.
  */
-export function buildGroceryList(
-  cart: Record<string, number>,
-  meals: Meal[],
+export function buildGroceryFromPrep(
+  prep: Record<string, number>,
   components: Component[],
 ): Ingredient[] {
-  const mealById = new Map(meals.map((m) => [m.id, m]))
   const componentById = new Map(components.map((c) => [c.id, c]))
   const totals = new Map<string, Ingredient>()
 
-  for (const [mealId, batches] of Object.entries(cart)) {
-    if (!batches || batches <= 0) continue
-    const meal = mealById.get(mealId)
-    if (!meal) continue
-    for (const componentId of meal.componentIds) {
-      const component = componentById.get(componentId)
-      if (!component) continue
-      for (const ing of component.ingredients) {
-        const key = `${ing.name.toLowerCase()}|${ing.unit.toLowerCase()}`
-        const existing = totals.get(key)
-        if (existing) {
-          existing.quantity += ing.quantity * batches
-        } else {
-          totals.set(key, { ...ing, quantity: ing.quantity * batches })
-        }
+  for (const [componentId, servings] of Object.entries(prep)) {
+    if (!servings || servings <= 0) continue
+    const component = componentById.get(componentId)
+    if (!component) continue
+    const batches = batchesNeeded(component, servings)
+    for (const ing of component.ingredients) {
+      const key = `${ing.name.toLowerCase()}|${ing.unit.toLowerCase()}`
+      const existing = totals.get(key)
+      if (existing) {
+        existing.quantity += ing.quantity * batches
+      } else {
+        totals.set(key, { ...ing, quantity: ing.quantity * batches })
       }
     }
   }

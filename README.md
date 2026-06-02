@@ -4,10 +4,12 @@ A component-based meal planner inspired by **Ethan Chlebowski's mix-and-match
 meal prep system**, with built-in **calorie and protein targets** for weight
 loss.
 
-Instead of cooking five rigid recipes, you keep a **library of prepped
-components** and assemble meals by mixing and matching them. Switching the
-**sauce** is usually all it takes to turn the same base + protein into a whole
-new cuisine.
+It's **prep-first**: instead of planning rigid day-by-day meals, you decide how
+many **servings of each component** you'll batch-cook for a period (e.g. 5
+days). If the total calories and protein you prep cover your period target,
+you'll hit your goals — however you mix and match meals day to day. Switching
+the **sauce** is usually all it takes to turn the same base + protein into a
+whole new cuisine.
 
 ## The system
 
@@ -25,20 +27,22 @@ A handful of components per role yields dozens of distinct meals.
 
 ## Features
 
+- **Prep plan** (the main view) — pick a period length (default 5 days) and set
+  how many **servings of each component** you'll batch-cook. Running totals show
+  total calories & protein vs. your period target (daily × days) and the per-day
+  average, so you can see at a glance whether your prep covers your goals.
 - **Component library** — manage your bank of building blocks by category and
-  flavor profile, each with per-serving nutrition and grocery ingredients.
-- **Meal builder** — mix & match components into a meal, pick a form factor
-  (bowl / salad / wrap / tacos…), and watch calories + protein total up live
-  against your daily targets. A 🎲 *Surprise me* button auto-picks on-profile
-  components.
-- **Week planner** — assign meals to each day of the week and see that day's
-  total calories and protein vs. your targets, plus a daily average across the
-  week. Days flag when they go over calories or hit protein-dense.
-- **Calorie & protein targets** — set a daily goal; every meal shows what % of
-  your targets it covers and flags **protein-dense** meals (≥ 8 g protein per
-  100 kcal) — the sweet spot for staying full while losing weight.
-- **Grocery list** — add meals (in batches) and their ingredients roll up into
-  one de-duplicated, checkable shopping list you can copy to the clipboard.
+  flavor profile, each with per-serving nutrition, a servings-per-batch yield,
+  and grocery ingredients.
+- **Assembly ideas** — saved component combos for inspiration (bowl / wrap /
+  tacos…), decoupled from your targets. Send any idea to the prep plan to add a
+  serving of each of its components.
+- **Calorie & protein targets** — set a daily goal; the prep plan scales it to
+  your period and flags **protein-dense** prep (≥ 8 g protein per 100 kcal) —
+  the sweet spot for staying full while losing weight.
+- **Grocery list** — derived straight from your prep plan: a "to cook"
+  checklist (with batch counts) plus a de-duplicated, checkable shopping list
+  you can copy to the clipboard.
 
 All data is saved in your browser (localStorage) — no account, works offline.
 
@@ -58,10 +62,10 @@ React 18 · TypeScript · Vite. State lives in a small React context
 
 ```
 src/
-  types.ts            domain model (components, meals, nutrition, targets)
-  seed.ts             starter component & meal library
-  nutrition.ts        macro math + grocery aggregation
+  types.ts            domain model (components, meals, nutrition, targets, prep)
+  seed.ts             starter component & idea library
+  nutrition.ts        macro math + prep totals + grocery aggregation
   store.tsx           localStorage-backed state context
   components/         shared UI (targets bar, macros, progress, modal)
-  views/              ComponentLibrary, MealBuilder, MealForm, WeekPlanner, GroceryList
+  views/              PrepPlan, ComponentLibrary, MealBuilder, MealForm, GroceryList
 ```

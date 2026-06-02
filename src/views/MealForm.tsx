@@ -25,7 +25,6 @@ export function MealForm({
   const [name, setName] = useState(initial?.name ?? '')
   const [flavor, setFlavor] = useState<FlavorProfile>(initial?.flavorProfile ?? 'Mexican')
   const [formFactor, setFormFactor] = useState<FormFactor>(initial?.formFactor ?? 'bowl')
-  const [servings, setServings] = useState(String(initial?.servings ?? 4))
   const [selected, setSelected] = useState<string[]>(initial?.componentIds ?? [])
   const [notes, setNotes] = useState(initial?.notes ?? '')
 
@@ -58,7 +57,6 @@ export function MealForm({
       name: name.trim() || `${flavor} ${formFactor}`,
       flavorProfile: flavor,
       formFactor,
-      servings: Math.max(1, Number(servings) || 1),
       componentIds: selected,
       notes: notes.trim() || undefined,
     }
@@ -79,16 +77,6 @@ export function MealForm({
               autoFocus
               placeholder={`${flavor} ${formFactor}`}
               onChange={(e) => setName(e.target.value)}
-            />
-          </label>
-          <label className="form__field">
-            <span>Servings / batch</span>
-            <input
-              className="input input--narrow"
-              type="number"
-              min={1}
-              value={servings}
-              onChange={(e) => setServings(e.target.value)}
             />
           </label>
         </div>

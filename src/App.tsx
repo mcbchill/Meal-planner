@@ -1,23 +1,25 @@
 import { useState } from 'react'
 import { useStore } from './store'
+import { PrepPlan } from './views/PrepPlan'
 import { ComponentLibrary } from './views/ComponentLibrary'
 import { MealBuilder } from './views/MealBuilder'
 import { GroceryList } from './views/GroceryList'
-import { WeekPlanner } from './views/WeekPlanner'
 import { TargetsBar } from './components/TargetsBar'
+import { totalPlannedServings } from './nutrition'
 
-type Tab = 'components' | 'meals' | 'plan' | 'grocery'
+type Tab = 'prep' | 'ideas' | 'components' | 'grocery'
 
 const TABS: { id: Tab; label: string; emoji: string }[] = [
-  { id: 'meals', label: 'Meals', emoji: '🍽️' },
-  { id: 'plan', label: 'Plan', emoji: '🗓️' },
+  { id: 'prep', label: 'Prep plan', emoji: '🗓️' },
+  { id: 'ideas', label: 'Ideas', emoji: '🍽️' },
   { id: 'components', label: 'Components', emoji: '🧩' },
   { id: 'grocery', label: 'Grocery', emoji: '🛒' },
 ]
 
 export default function App() {
-  const [tab, setTab] = useState<Tab>('meals')
+  const [tab, setTab] = useState<Tab>('prep')
   const { state } = useStore()
+  const plannedServings = totalPlannedServings(state.prep)
 
   return (
     <div className="app">
@@ -26,7 +28,7 @@ export default function App() {
           <span className="logo">🥗</span>
           <div>
             <h1>Meal Planner</h1>
-            <p className="tagline">Mix &amp; match components · hit your calorie &amp; protein targets</p>
+            <p className="tagline">Prep-first planning · hit your calorie &amp; protein targets</p>
           </div>
         </div>
         <TargetsBar />
@@ -43,16 +45,16 @@ export default function App() {
           >
             <span className="tab__emoji">{t.emoji}</span>
             {t.label}
-            {t.id === 'grocery' && Object.keys(state.cart).length > 0 && (
-              <span className="tab__badge">{Object.keys(state.cart).length}</span>
+            {t.id === 'grocery' && plannedServings > 0 && (
+              <span className="tab__badge">{plannedServings}</span>
             )}
           </button>
         ))}
       </nav>
 
       <main className="content">
-        {tab === 'meals' && <MealBuilder />}
-        {tab === 'plan' && <WeekPlanner />}
+        {tab === 'prep' && <PrepPlan />}
+        {tab === 'ideas' && <MealBuilder />}
         {tab === 'components' && <ComponentLibrary />}
         {tab === 'grocery' && <GroceryList />}
       </main>
