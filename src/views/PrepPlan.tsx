@@ -11,10 +11,12 @@ import {
 } from '../nutrition'
 import { TargetProgress } from '../components/NutritionStats'
 import { Modal } from '../components/Modal'
+import { useToast } from '../components/Toast'
 import { TEMPLATES, generatePrepPlan, type PrepTemplate } from '../planner'
 
 export function PrepPlan() {
-  const { state, setPrepServings, setPeriodDays, setPrep, clearPrep } = useStore()
+  const { state, setPrepServings, setPeriodDays, setPrep, clearPrep, undo } = useStore()
+  const { showToast } = useToast()
   const { components, prep, targets, periodDays } = state
   const [adding, setAdding] = useState(false)
 
@@ -34,8 +36,9 @@ export function PrepPlan() {
   }
 
   function applyTemplate(t: PrepTemplate) {
-    if (hasPlan && !confirm(`Replace your current plan with the "${t.name}" plan?`)) return
+    const replacing = hasPlan
     setPrep(generatePrepPlan(components, targets, periodDays, { profile: t.profile }))
+    showToast(`${replacing ? 'Replaced with' : 'Generated'} the “${t.name}” plan`, 'Undo', undo)
   }
 
   // Components currently in the plan, grouped by category for the "Your plan" view.
@@ -65,7 +68,8 @@ export function PrepPlan() {
           <button
             className="btn btn--ghost btn--sm"
             onClick={() => {
-              if (confirm('Clear the whole prep plan?')) clearPrep()
+              clearPrep()
+              showToast('Prep plan cleared', 'Undo', undo)
             }}
           >
             Clear

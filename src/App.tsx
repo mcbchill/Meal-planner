@@ -5,7 +5,6 @@ import { ComponentLibrary } from './views/ComponentLibrary'
 import { MealBuilder } from './views/MealBuilder'
 import { GroceryList } from './views/GroceryList'
 import { TargetsBar } from './components/TargetsBar'
-import { totalPlannedServings } from './nutrition'
 
 type Tab = 'prep' | 'ideas' | 'components' | 'grocery'
 
@@ -16,10 +15,28 @@ const TABS: { id: Tab; label: string; emoji: string }[] = [
   { id: 'grocery', label: 'Grocery', emoji: '🛒' },
 ]
 
+const ONBOARD_KEY = 'meal-planner.onboarded'
+
 export default function App() {
   const [tab, setTab] = useState<Tab>('prep')
   const { state } = useStore()
-  const plannedServings = totalPlannedServings(state.prep)
+  const prepItemCount = Object.keys(state.prep).length
+  const [showIntro, setShowIntro] = useState(() => {
+    try {
+      return localStorage.getItem(ONBOARD_KEY) !== '1'
+    } catch {
+      return false
+    }
+  })
+
+  function dismissIntro() {
+    setShowIntro(false)
+    try {
+      localStorage.setItem(ONBOARD_KEY, '1')
+    } catch {
+      /* ignore */
+    }
+  }
 
   return (
     <div className="app">
@@ -34,7 +51,20 @@ export default function App() {
         <TargetsBar />
       </header>
 
-      <nav className="tabs" role="tablist">
+      {showIntro && (
+        <div className="intro" role="note">
+          <span className="intro__text">
+            👋 <strong>Prep-first:</strong> pick a <em>Prep plan</em> template, batch-cook those
+            servings, and as long as you eat what you prepped you'll hit your targets — assemble
+            meals however you like day to day.
+          </span>
+          <button className="intro__close" aria-label="Dismiss intro" onClick={dismissIntro}>
+            Got it
+          </button>
+        </div>
+      )}
+
+      <nav className="tabs" role="tablist" aria-label="Sections">
         {TABS.map((t) => (
           <button
             key={t.id}
@@ -45,8 +75,10 @@ export default function App() {
           >
             <span className="tab__emoji">{t.emoji}</span>
             {t.label}
-            {t.id === 'grocery' && plannedServings > 0 && (
-              <span className="tab__badge">{plannedServings}</span>
+            {t.id === 'grocery' && prepItemCount > 0 && (
+              <span className="tab__badge" aria-label={`${prepItemCount} items to prep`}>
+                {prepItemCount}
+              </span>
             )}
           </button>
         ))}

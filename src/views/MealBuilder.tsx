@@ -3,6 +3,7 @@ import { useStore } from '../store'
 import { CATEGORY_BY_ID, FORM_FACTORS, type Meal } from '../types'
 import { mealNutrition, proteinDensity } from '../nutrition'
 import { NutritionStats } from '../components/NutritionStats'
+import { useToast } from '../components/Toast'
 import { MealForm } from './MealForm'
 
 function formFactorMeta(id: Meal['formFactor']) {
@@ -10,7 +11,8 @@ function formFactorMeta(id: Meal['formFactor']) {
 }
 
 export function MealBuilder() {
-  const { state, deleteMeal, addServingsToPrep } = useStore()
+  const { state, deleteMeal, addServingsToPrep, undo } = useStore()
+  const { showToast } = useToast()
   const [building, setBuilding] = useState(false)
   const [editing, setEditing] = useState<Meal | null>(null)
   const [added, setAdded] = useState<string | null>(null)
@@ -69,7 +71,8 @@ export function MealBuilder() {
                       className="icon-btn"
                       title="Delete"
                       onClick={() => {
-                        if (confirm(`Delete "${meal.name}"?`)) deleteMeal(meal.id)
+                        deleteMeal(meal.id)
+                        showToast(`Deleted “${meal.name}”`, 'Undo', undo)
                       }}
                     >
                       🗑️

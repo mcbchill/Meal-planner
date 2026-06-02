@@ -9,10 +9,12 @@ import {
   type FlavorProfile,
 } from '../types'
 import { NutritionStats } from '../components/NutritionStats'
+import { useToast } from '../components/Toast'
 import { ComponentForm } from './ComponentForm'
 
 export function ComponentLibrary() {
-  const { state, deleteComponent } = useStore()
+  const { state, deleteComponent, undo } = useStore()
+  const { showToast } = useToast()
   const [search, setSearch] = useState('')
   const [flavor, setFlavor] = useState<FlavorProfile | 'all'>('all')
   const [editing, setEditing] = useState<Component | null>(null)
@@ -94,7 +96,8 @@ export function ComponentLibrary() {
                           className="icon-btn"
                           title="Delete"
                           onClick={() => {
-                            if (confirm(`Delete "${c.name}"?`)) deleteComponent(c.id)
+                            deleteComponent(c.id)
+                            showToast(`Deleted “${c.name}”`, 'Undo', undo)
                           }}
                         >
                           🗑️

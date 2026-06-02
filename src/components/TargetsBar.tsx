@@ -65,7 +65,12 @@ export function TargetsBar() {
   }
 
   return (
-    <button className="targets" onClick={() => setEditing(true)} title="Edit daily targets">
+    <button
+      className="targets"
+      onClick={() => setEditing(true)}
+      aria-label="Edit your daily calorie and protein targets"
+      title="Edit daily targets"
+    >
       <div className="targets__stat">
         <span className="targets__value">{state.targets.calories}</span>
         <span className="targets__label">kcal / day</span>

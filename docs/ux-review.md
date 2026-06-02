@@ -114,11 +114,20 @@ fiddly. *Fix:* add `inputMode`, `step`, and select-on-focus. *Effort: S*
 4. ✅ **m7** non-color status cue ("▲ over" label on progress bars)
 5. ✅ **m10/m11** target clamping + `inputMode`/select-on-focus on number fields
 
-## Bigger bets (validate with users)
-- **M5** bottom navigation + collapsing summary on mobile
-- **M4** accessible modal (focus trap/restore)
-- **m8** undo snackbar pattern
-- First-run orientation (p15)
+## Bigger bets — ✅ IMPLEMENTED
+- ✅ **M5** mobile bottom navigation; prep summary no longer sticky on phones
+  (removes the double-sticky crowding)
+- ✅ **M4** accessible modal — focus moves in on open, Tab is trapped, focus is
+  restored to the trigger on close
+- ✅ **m8** undo snackbar replaces native `confirm()` for delete / clear /
+  template-replace (snapshot-based `undo()` in the store)
+- ✅ **m9** (subsumed by m8 — destructive actions are now reversible)
+- ✅ First-run orientation banner (p15)
+- ✅ **p13** grocery badge now counts prep items; **p14** targets-bar aria-label;
+  **p16** reduced-motion (shipped with the quick wins)
+
+## Still open (optional, lower priority)
+- **m6** plain-language explanations for remaining jargon on touch (no hover)
 
 ## What to verify with real users / tools
 - Run **Lighthouse** (Accessibility + PWA + Best Practices) for scored baselines.

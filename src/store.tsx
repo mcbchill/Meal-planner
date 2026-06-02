@@ -4,6 +4,7 @@ import {
   useContext,
   useEffect,
   useMemo,
+  useRef,
   useState,
   type ReactNode,
 } from 'react'
@@ -73,6 +74,8 @@ interface Store {
   addServingsToPrep: (componentIds: string[], delta: number) => void
   setPrep: (prep: Record<string, number>) => void
   clearPrep: () => void
+  // undo (restores the state snapshot from the last destructive action)
+  undo: () => void
   // data
   resetAll: () => void
 }
@@ -81,6 +84,14 @@ const StoreContext = createContext<Store | null>(null)
 
 export function StoreProvider({ children }: { children: ReactNode }) {
   const [state, setState] = useState<AppState>(loadState)
+
+  // Latest state (for snapshots) + the snapshot to restore on undo.
+  const stateRef = useRef(state)
+  stateRef.current = state
+  const undoRef = useRef<AppState | null>(null)
+  const snapshot = () => {
+    undoRef.current = stateRef.current
+  }
 
   useEffect(() => {
     try {
@@ -104,6 +115,7 @@ export function StoreProvider({ children }: { children: ReactNode }) {
   }, [])
 
   const deleteComponent = useCallback((id: string) => {
+    snapshot()
     setState((s) => {
       const prep = { ...s.prep }
       delete prep[id]
@@ -131,6 +143,7 @@ export function StoreProvider({ children }: { children: ReactNode }) {
   }, [])
 
   const deleteMeal = useCallback((id: string) => {
+    snapshot()
     setState((s) => ({ ...s, meals: s.meals.filter((x) => x.id !== id) }))
   }, [])
 
@@ -164,10 +177,21 @@ export function StoreProvider({ children }: { children: ReactNode }) {
   }, [])
 
   const setPrep = useCallback((prep: Record<string, number>) => {
+    snapshot()
     setState((s) => ({ ...s, prep }))
   }, [])
 
-  const clearPrep = useCallback(() => setState((s) => ({ ...s, prep: {} })), [])
+  const clearPrep = useCallback(() => {
+    snapshot()
+    setState((s) => ({ ...s, prep: {} }))
+  }, [])
+
+  const undo = useCallback(() => {
+    if (undoRef.current) {
+      setState(undoRef.current)
+      undoRef.current = null
+    }
+  }, [])
 
   const resetAll = useCallback(() => setState(initialState()), [])
 
@@ -186,6 +210,7 @@ export function StoreProvider({ children }: { children: ReactNode }) {
       addServingsToPrep,
       setPrep,
       clearPrep,
+      undo,
       resetAll,
     }),
     [
@@ -202,6 +227,7 @@ export function StoreProvider({ children }: { children: ReactNode }) {
       addServingsToPrep,
       setPrep,
       clearPrep,
+      undo,
       resetAll,
     ],
   )
